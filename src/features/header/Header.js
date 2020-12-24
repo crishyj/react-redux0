@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
+import { saveNewTodo } from "../todos/todoSlice";
 
 const Header = () => {
   const [text, setText] = useState('')
@@ -12,7 +13,9 @@ const Header = () => {
     const trimmedText = text.trim()
     if (e.which === 13 && trimmedText) {
       // Dispatch the "todo added" action with this text
-      dispatch({ type: 'todos/todoAdded', payload: trimmedText })
+      const saveNewTodoThunk = saveNewTodo(trimmedText)
+      dispatch(saveNewTodoThunk)
+    //   dispatch({ type: 'todos/todoAdded', payload: trimmedText })
       // And clear out the text input
       setText('')
     }

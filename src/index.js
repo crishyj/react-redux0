@@ -6,15 +6,11 @@ import reportWebVitals from './reportWebVitals';
 import './api/server';
 import store from "./store";
 import { Provider } from "react-redux";
+import { fetchTodos } from "./features/todos/todoSlice";
 
 
-const unsubscribe = store.subscribe(() => 
-  console.log('State after dispatch: ', store.getState())
-)
+store.dispatch(fetchTodos)
 
-store.dispatch({ type: 'todos/todoAdded', payload: 'Learn about actions' })
-
-unsubscribe()
 
 ReactDOM.render(
   <React.StrictMode>
