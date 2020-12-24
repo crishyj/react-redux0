@@ -9,7 +9,7 @@ import { Provider } from "react-redux";
 import { fetchTodos } from "./features/todos/todoSlice";
 
 
-store.dispatch(fetchTodos)
+store.dispatch(fetchTodos())
 
 
 ReactDOM.render(

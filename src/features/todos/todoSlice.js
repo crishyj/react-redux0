@@ -1,4 +1,6 @@
 import { client } from "../../api/client";
+import { createSelector } from "reselect";
+import { StatusFilters } from "../filters/filtersSlice";
 
 const initialState = []
 
@@ -10,7 +12,6 @@ function nextTodoId(todos) {
 export default function todosReducer(state = initialState, action) {
   switch (action.type) {
     case 'todos/todoAdded': {
-      // Can return just the new todos array - no extra object around it
       return [
         ...state,
         action.payload
@@ -67,23 +68,52 @@ export default function todosReducer(state = initialState, action) {
   }
 }
 
-export async function fetchTodos(dispatch, getState){
-    const response = await client.get('/fakeApi/todos')
+export const todosLoaded = todos => {
+    return{
+        type: 'todos/todosLoaded',
+        payload: todos
+    }
+}
 
-    const stateBefore = getState()
-    console.log('Todos before dispath: ', stateBefore.todos.length)
+export function fetchTodos(){
+    return async function fetchTodosThunk(dispatch, getState){
+        const response = await client.get('/fakeApi/todos')
+        dispatch(todosLoaded(response.todos))
+    }
+}
 
-    dispatch({ type: 'todos/todosLoaded', payload: response.todos })
-
-    const stateAfter = getState()
-    console.log('Todos after dispatch: ', stateAfter.todos.length)
+export const todoAdded = todo => {
+    return{
+        type: 'todos/todoAdded',
+        payload: todo
+    }
 }
 
 export function saveNewTodo(text) {
-    // And then creates and returns the async thunk function:
     return async function saveNewTodoThunk(dispatch, getState) {
       const initialTodo = { text }
       const response = await client.post('/fakeApi/todos', { todo: initialTodo })
-      dispatch({ type: 'todos/todoAdded', payload: response.todo })
+      dispatch(todoAdded(response.todo))
     }
-  }
+}
+
+export const selectTodoIds = createSelector(
+    state => state.todos,
+    todos => todos.map(todo => todo.id)
+)
+
+export const selectFilteredTodos = createSelector(
+    state => state.todos,
+    state => state.filters.status,
+    (todos, status) => {
+        if(status === StatusFilters.All){
+            return todos
+        }
+
+        const completedStatus = status === StatusFilters.Completed
+
+        return todos.filter(todo => todo.completed === completedStatus)
+    }
+)
+
+
